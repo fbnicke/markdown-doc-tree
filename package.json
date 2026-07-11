@@ -1,0 +1,31 @@
+{
+  "bin": {
+    "opensource-doc-tree": "./dist/cli.js"
+  },
+  "name": "opensource-doc-tree",
+  "version": "0.1.0",
+  "description": "",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.js",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "test": "vitest",
+    "test:run": "vitest run",
+    "dev": "tsx src/index.ts",
+    "build": "tsc -p tsconfig.build.json",
+    "docs:validate": "tsx src/cli.ts validate ./docs",
+    "docs:validate:strict": "tsx src/cli.ts validate ./docs --strict-missing-parents"
+  },
+  "keywords": [],
+  "author": "Florian Bönicke",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^26.1.1",
+    "tsx": "^4.23.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.10"
+  }
+}
