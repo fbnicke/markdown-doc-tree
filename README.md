@@ -239,6 +239,8 @@ Markdown + images
 → printable PDF
 ```
 
+See the [changelog](./CHANGELOG.md) for released features and the [roadmap](./ROADMAP.md) for planned work.
+
 ## License
 
 ISC
