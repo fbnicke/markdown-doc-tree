@@ -1,31 +1,60 @@
 {
-  "bin": {
-    "opensource-doc-tree": "./dist/cli.js"
-  },
-  "name": "opensource-doc-tree",
+  "name": "markdown-doc-tree",
   "version": "0.1.0",
-  "description": "",
+  "description": "Build interactive documentation trees and printable PDF manuals from numbered Markdown files.",
+  "license": "ISC",
+  "author": {
+    "name": "Florian Bönicke",
+    "url": "https://github.com/fbnicke"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fbnicke/markdown-doc-tree.git"
+  },
+  "homepage": "https://github.com/fbnicke/markdown-doc-tree#readme",
+  "bugs": {
+    "url": "https://github.com/fbnicke/markdown-doc-tree/issues"
+  },
   "type": "module",
   "main": "./dist/index.js",
-  "types": "./dist/index.d.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "markdown-doc-tree": "./dist/cli.js"
+  },
   "files": [
-    "dist"
+    "dist",
+    "viewer",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "test": "vitest",
     "test:run": "vitest run",
     "dev": "tsx src/index.ts",
     "build": "tsc -p tsconfig.build.json",
-    "docs:validate": "tsx src/cli.ts validate ./docs",
-    "docs:validate:strict": "tsx src/cli.ts validate ./docs --strict-missing-parents"
+    "viewer:dev": "npm run example:manifest && vite",
+    "viewer:build": "npm run example:manifest && vite build",
+    "example:validate": "tsx src/cli.ts validate ./example/docs",
+    "example:manifest": "tsx src/cli.ts manifest ./example/docs --output ./output/docs-manifest.json",
+    "example:pdf": "tsx src/cli.ts pdf ./example/docs --output ./output/manual/documentation.pdf --title \"Markdown Doc Tree Example\""
   },
-  "keywords": [],
-  "author": "Florian Bönicke",
-  "license": "ISC",
+  "keywords": [
+    "documentation",
+    "markdown",
+    "manual",
+    "pdf",
+    "documentation-tree",
+    "cli"
+  ],
   "devDependencies": {
     "@types/node": "^26.1.1",
     "tsx": "^4.23.0",
     "typescript": "^6.0.3",
+    "vite": "^8.1.4",
     "vitest": "^4.1.10"
+  },
+  "dependencies": {
+    "marked": "^18.0.6",
+    "playwright": "^1.61.1"
   }
 }

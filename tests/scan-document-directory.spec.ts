@@ -20,7 +20,7 @@ afterEach(async () => {
 });
 
 describe("scanDocumentDirectory", () => {
-  it("recursively discovers numbered Markdown documents", async () => {
+  it("discovers numbered Markdown documents in the root directory and ignores nested directories in root", async () => {
     const root = await createTemporaryDirectory();
 
     await writeFile(
@@ -28,34 +28,28 @@ describe("scanDocumentDirectory", () => {
       "# Getting Started",
     );
 
-    await mkdir(path.join(root, "installation"));
+    await mkdir(path.join(root, "nested"));
 
     await writeFile(
-      path.join(root, "installation", "1.1_Installation.md"),
+      path.join(
+        root,
+        "nested",
+        "1.1_Installation.md",
+      ),
       "# Installation",
-    );
-
-    await writeFile(
-      path.join(root, "README.md"),
-      "# Ignored",
-    );
-
-    await writeFile(
-      path.join(root, "notes.txt"),
-      "Ignored",
     );
 
     const documents = await scanDocumentDirectory(root);
 
     expect(
-      documents.map((document) => document.id).sort(),
-    ).toEqual(["1", "1.1"]);
+      documents.map((document) => document.id),
+    ).toEqual(["1"]);
   });
 });
 
 async function createTemporaryDirectory(): Promise<string> {
   const directory = await mkdtemp(
-    path.join(tmpdir(), "opensource-doc-tree-"),
+    path.join(tmpdir(), "markdown-doc-tree-"),
   );
 
   temporaryDirectories.push(directory);
