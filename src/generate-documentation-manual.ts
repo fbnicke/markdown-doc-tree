@@ -55,8 +55,11 @@ export async function generateDocumentationManual(
     rootDirectory,
   );
 
+  const tableOfContents = renderTableOfContents(validation.tree);
+
   const html = createManualHtml({
     title: options.title ?? "Documentation Manual",
+    tableOfContents,
     body,
   });
 
@@ -193,6 +196,7 @@ function assertAssetInsideRoot(
 
 type ManualHtmlOptions = {
   title: string;
+  tableOfContents: string;
   body: string;
 };
 
@@ -330,6 +334,42 @@ function createManualHtml(
       a {
         color: inherit;
       }
+
+      .table-of-contents {
+        break-after: page;
+      }
+
+      .table-of-contents h1 {
+        margin-bottom: 10mm;
+      }
+
+      .table-of-contents-list,
+      .table-of-contents-list ol {
+        margin: 0;
+        padding-left: 0;
+        list-style: none;
+      }
+
+      .table-of-contents-list ol {
+        padding-left: 8mm;
+      }
+
+      .table-of-contents-list li {
+        margin: 2.5mm 0;
+      }
+
+      .table-of-contents-list a {
+        display: flex;
+        gap: 3mm;
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .toc-document-id {
+        min-width: 15mm;
+        color: #64748b;
+        font-variant-numeric: tabular-nums;
+      }
     </style>
   </head>
 
@@ -337,6 +377,11 @@ function createManualHtml(
     <section class="title-page">
       <h1>${escapeHtml(options.title)}</h1>
       <p>Generated with Markdown Doc Tree</p>
+    </section>
+
+    <section class="table-of-contents">
+      <h1>Table of Contents</h1>
+      ${options.tableOfContents}
     </section>
 
     <main>
@@ -391,4 +436,45 @@ async function renderPdf(
   } finally {
     await browser.close();
   }
+}
+
+function renderTableOfContents(
+  nodes: DocumentNode[],
+): string {
+  return `
+    <ol class="table-of-contents-list">
+      ${nodes
+        .map(renderTableOfContentsNode)
+        .join("\n")}
+    </ol>
+  `;
+}
+
+function renderTableOfContentsNode(
+  node: DocumentNode,
+): string {
+  const children =
+    node.children.length > 0
+      ? `
+        <ol>
+          ${node.children
+            .map(renderTableOfContentsNode)
+            .join("\n")}
+        </ol>
+      `
+      : "";
+
+  return `
+    <li>
+      <a href="#document-${escapeAttribute(node.id)}">
+        <span class="toc-document-id">
+          ${escapeHtml(node.id)}
+        </span>
+
+        <span>${escapeHtml(node.title)}</span>
+      </a>
+
+      ${children}
+    </li>
+  `;
 }

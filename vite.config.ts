@@ -2,9 +2,9 @@ import { defineConfig } from "vite";
 
 export default defineConfig({
   root: "viewer",
-  publicDir: "../output",
+  publicDir: "../output/public",
   build: {
     outDir: "../output/viewer",
-    emptyOutDir: false,
+    emptyOutDir: true,
   },
 });
