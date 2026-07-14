@@ -6,6 +6,28 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+### Changed
+
+* Restructured the source code around ports-and-adapters boundaries, separating domain logic, application use cases, inbound adapters, outbound adapters, and ports.
+* Moved the CLI into a dedicated inbound adapter while preserving the existing commands and executable behavior.
+* Replaced direct filesystem access in documentation validation and manifest generation with injected outbound ports.
+* Added `DocumentationSourceReader` for loading documentation sources independently of their storage mechanism.
+* Added `DocumentationManifestPublisher` for publishing generated manifests and documentation content independently of the application use case.
+* Added filesystem implementations for documentation source reading and manifest publication.
+* Updated the public package exports, CLI executable path, example scripts, and tests to reflect the new architecture.
+
+### Breaking
+
+* `scanDocumentDirectory()` has been replaced by `fileSystemDocumentationSourceReader.read()`.
+* `validateDocumentationDirectory()`, `generateDocumentationManifest()`, and `generateDocumentationManual()` now require their outbound dependencies to be supplied explicitly.
+* Internal source module paths have changed as part of the ports-and-adapters restructuring.
+
+### Known limitations
+
+* PDF manual generation still contains direct filesystem, path, URL, and Playwright dependencies inside the application use case. These responsibilities will be extracted behind an outbound port.
+* The current tests continue to use the real filesystem adapters.
+
+
 ## [0.1.0]
 
 ### Added

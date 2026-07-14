@@ -2,22 +2,13 @@
 
 import path from "node:path";
 import process from "node:process";
-import {
-  generateDocumentationManifest,
-} from "./generate-documentation-manifest.js";
+import type { DocumentationDiagnosticSeverity, DocumentationDiagnostic } from '../../../domain/documentation-diagnostic.js';
+import { validateDocumentationDirectory } from '../../../application/use-cases/validate-documentation.js';
+import { generateDocumentationManual } from '../../../application/use-cases/generate-documentation-manual.js';
+import { generateDocumentationManifest } from '../../../application/use-cases/generate-documentation-manifest.js';
+import { fileSystemDocumentationSourceReader } from '../../outbound/filesystem/scan-document-directory.js';
+import { fileSystemDocumentationManifestPublisher } from '../../outbound/filesystem/file-system-documentation-manifest-publisher.js';
 
-import {
-  generateDocumentationManual,
-} from "./generate-documentation-manual.js";
-
-import {
-  validateDocumentationDirectory,
-} from "./validate-documentation.js";
-
-import type {
-  DocumentationDiagnostic,
-  DocumentationDiagnosticSeverity,
-} from "./documentation-diagnostic.js";
 
 type CliOptions =
 | {
@@ -52,6 +43,8 @@ async function main(): Promise<void> {
     );
 
     await generateDocumentationManifest(
+      fileSystemDocumentationSourceReader,
+      fileSystemDocumentationManifestPublisher,
       rootDirectory,
       {
         outputFile,
@@ -77,6 +70,7 @@ async function main(): Promise<void> {
     );
 
     await generateDocumentationManual(
+      fileSystemDocumentationSourceReader,
       rootDirectory,
       {
         outputFile,
@@ -99,6 +93,7 @@ async function main(): Promise<void> {
 
   try {
     const result = await validateDocumentationDirectory(
+      fileSystemDocumentationSourceReader,
       rootDirectory,
       {
         missingParentSeverity:

@@ -13,7 +13,8 @@ import {
   expect,
   it,
 } from "vitest";
-import { generateDocumentationManifest } from "../src/generate-documentation-manifest.js";
+import { fileSystemDocumentationSourceReader, generateDocumentationManifest } from '../src/index.js';
+import { fileSystemDocumentationManifestPublisher } from '../src/adapters/outbound/filesystem/file-system-documentation-manifest-publisher.js';
 
 const temporaryDirectories: string[] = [];
 
@@ -59,6 +60,8 @@ describe("generateDocumentationManifest", () => {
     );
 
     await generateDocumentationManifest(
+      fileSystemDocumentationSourceReader,
+      fileSystemDocumentationManifestPublisher,
       docsDirectory,
       {
         outputFile: path.join(

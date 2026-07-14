@@ -1,13 +1,9 @@
-import { buildDocumentTree } from "./build-document-tree.js";
-import type {
-  DocumentNode,
-  DocumentSource,
-} from "./document-node.js";
-import type {
-  DocumentationDiagnostic,
-  DocumentationDiagnosticSeverity,
-} from "./documentation-diagnostic.js";
-import { scanDocumentDirectory } from "./scan-document-directory.js";
+
+import { buildDocumentTree } from '../../domain/build-document-tree.js';
+import type { DocumentSource, DocumentNode } from '../../domain/document-node.js';
+import type { DocumentationDiagnosticSeverity, DocumentationDiagnostic } from '../../domain/documentation-diagnostic.js';
+import { DocumentationSourceReader } from '../../ports/outbound/documentation-source-reader.js';
+
 
 export type ValidateDocumentationOptions = {
   missingParentSeverity?: DocumentationDiagnosticSeverity;
@@ -21,11 +17,11 @@ export type DocumentationValidationResult = {
 };
 
 export async function validateDocumentationDirectory(
+  sourceReader: DocumentationSourceReader,
   rootDirectory: string,
   options: ValidateDocumentationOptions = {},
 ): Promise<DocumentationValidationResult> {
-  const documents =
-    await scanDocumentDirectory(rootDirectory);
+  const documents = await sourceReader.read(rootDirectory);
 
   return validateDocuments(documents, options);
 }

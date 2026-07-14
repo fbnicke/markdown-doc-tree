@@ -1,6 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildDocumentTree } from "../src/build-document-tree.js";
-import { parseDocumentFilename } from "../src/parse-document-filename.js";
+import { parseDocumentFilename, buildDocumentTree } from '../src/index.js';
 
 describe("document tree", () => {
   it("builds a hierarchy from numbered Markdown filenames", () => {

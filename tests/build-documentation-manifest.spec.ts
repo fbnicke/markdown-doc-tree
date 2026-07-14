@@ -1,7 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildDocumentTree } from "../src/build-document-tree.js";
-import { buildDocumentationManifest } from "../src/build-documentation-manifest.js";
-import { parseDocumentFilename } from "../src/parse-document-filename.js";
+import { parseDocumentFilename, buildDocumentTree, buildDocumentationManifest } from '../src/index.js';
 
 describe("buildDocumentationManifest", () => {
   it("creates a portable manifest from documents and tree", () => {

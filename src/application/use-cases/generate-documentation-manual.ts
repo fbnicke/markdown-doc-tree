@@ -7,11 +7,12 @@ import path from "node:path";
 import { pathToFileURL } from "node:url";
 import { chromium } from "playwright";
 import { marked } from "marked";
-import type { DocumentNode } from "./document-node.js";
 import {
   validateDocumentationDirectory,
   type ValidateDocumentationOptions,
 } from "./validate-documentation.js";
+import type { DocumentNode } from '../../domain/document-node.js';
+import { DocumentationSourceReader } from '../../ports/outbound/documentation-source-reader.js';
 
 export type GenerateDocumentationManualOptions =
   ValidateDocumentationOptions & {
@@ -20,17 +21,17 @@ export type GenerateDocumentationManualOptions =
   };
 
 export async function generateDocumentationManual(
+  sourceReader: DocumentationSourceReader,
   rootDirectory: string,
   options: GenerateDocumentationManualOptions,
 ): Promise<void> {
-  const validation =
-    await validateDocumentationDirectory(
-      rootDirectory,
-      {
-        missingParentSeverity:
-          options.missingParentSeverity,
-      },
-    );
+  const validation = await validateDocumentationDirectory(
+    sourceReader,
+    rootDirectory,
+    {
+      missingParentSeverity: options.missingParentSeverity,
+    },
+  );
 
   if (!validation.valid) {
     throw new Error(

@@ -37,3 +37,4 @@ v0.2.0 is complete when:
 - Custom printable page frames and company branding
 - Configurable logos, headers, footers, margins, and page backgrounds
 - Image layout controls for size, alignment, and position
+- Investigate lighter open-source PDF-generation alternatives to the current Playwright/Chromium adapter. Consider WeasyPrint or Typst

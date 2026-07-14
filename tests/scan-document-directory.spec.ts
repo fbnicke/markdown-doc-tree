@@ -2,7 +2,7 @@ import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
 import { afterEach, describe, expect, it } from "vitest";
-import { scanDocumentDirectory } from "../src/scan-document-directory.js";
+import { fileSystemDocumentationSourceReader } from '../src/index.js';
 
 const temporaryDirectories: string[] = [];
 
@@ -39,7 +39,7 @@ describe("scanDocumentDirectory", () => {
       "# Installation",
     );
 
-    const documents = await scanDocumentDirectory(root);
+    const documents = await fileSystemDocumentationSourceReader.read(root);
 
     expect(
       documents.map((document) => document.id),

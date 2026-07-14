@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
-import type { DocumentSource } from "../src/document-node.js";
-import { validateDocuments } from "../src/validate-documentation.js";
+import { validateDocuments } from '../src/index.js';
+import type { DocumentSource } from '../src/index.js';
+
 
 describe("validateDocuments", () => {
   it("allows missing parents with a warning by default", () => {

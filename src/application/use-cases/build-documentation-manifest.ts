@@ -1,13 +1,6 @@
-import path from "node:path";
-import type {
-  DocumentationManifest,
-  ManifestDocument,
-  ManifestNode,
-} from "./documentation-manifest.js";
-import type {
-  DocumentNode,
-  DocumentSource,
-} from "./document-node.js";
+import path from 'node:path';
+import type { DocumentSource, DocumentNode } from '../../domain/document-node.js';
+import type { DocumentationManifest, ManifestDocument, ManifestNode } from '../../domain/documentation-manifest.js';
 
 export type BuildDocumentationManifestOptions = {
   contentDirectory?: string;
