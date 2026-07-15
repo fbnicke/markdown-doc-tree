@@ -18,6 +18,15 @@
   "type": "module",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./viewer": {
+      "import": "./dist/viewer/markdown-doc-tree.js"
+    }
+  },
   "bin": {
     "markdown-doc-tree": "./dist/adapters/inbound/cli/cli.js"
   },
@@ -34,6 +43,7 @@
     "build": "tsc -p tsconfig.build.json",
     "viewer:dev": "npm run example:manifest && vite",
     "viewer:build": "npm run example:manifest && vite build && tsx scripts/clean-viewer-staging.ts",
+    "viewer:build:library": "vite build --config viewer/vite.library.config.ts",
     "example:validate": "tsx src/adapters/inbound/cli/cli.ts validate ./example/docs",
     "example:manifest": "tsx src/adapters/inbound/cli/cli.ts manifest ./example/docs --output ./output/public/docs-manifest.json",
     "example:pdf": "tsx src/adapters/inbound/cli/cli.ts pdf ./example/docs --output ./output/manual/documentation.pdf --title \"Markdown Doc Tree Example\""

@@ -4,16 +4,22 @@
 
 The goal of v0.2.0 is to turn the standalone viewer into a reusable framework-independent Web Component.
 
-### Planned
+### Progress
 
-- Extract the viewer into a `<markdown-doc-tree>` Web Component
-- Support configuration through HTML attributes
-- Allow direct embedding in Angular, React, Vue, and plain HTML
-- Keep the existing Vite application as a demo shell
-- Encapsulate viewer styles
-- Add PDF table-of-contents page numbers
-- Document Angular integration
-- Preserve Linux and Windows compatibility
+* [x] Extract the viewer into a `<markdown-doc-tree>` Web Component
+* [x] Support manifest configuration through an HTML attribute
+* [x] Keep the existing Vite application as a demo shell
+* [x] Encapsulate viewer styles through shadow DOM
+* [x] Produce a standalone ESM viewer bundle
+* [x] Expose the viewer through `markdown-doc-tree/viewer`
+* [x] Verify direct embedding in plain HTML
+* [x] Verify direct consumption from an Angular application
+* [ ] Add isolated internal navigation for embedded help-dialog usage
+* [ ] Support selecting the initial document through component configuration
+* [ ] Document Angular integration
+* [ ] Add PDF table-of-contents page numbers
+* [ ] Preserve Linux and Windows compatibility
+
 
 ### Completion criteria
 

@@ -7,10 +7,18 @@
       content="width=device-width, initial-scale=1.0"
     />
     <title>Markdown Doc Tree</title>
+
+    <style>
+      body {
+        margin: 0;
+      }
+    </style>
   </head>
 
   <body>
-    <div id="app"></div>
+    <markdown-doc-tree
+      manifest-url="/docs-manifest.json"
+    ></markdown-doc-tree>
 
     <script
       type="module"
