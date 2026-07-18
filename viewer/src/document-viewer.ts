@@ -41,6 +41,7 @@ export class DocumentViewerElement extends HTMLElement {
   #initializationId = 0;
   #connected = false;
   #hashChangeListenerAttached = false;
+  #documentLoadId = 0;
 
   constructor() {
     super();
@@ -105,6 +106,7 @@ export class DocumentViewerElement extends HTMLElement {
 
   disconnectedCallback(): void {
     this.#connected = false;
+    ++this.#documentLoadId;
 
     this.#treeElement.removeEventListener(
       "click",
@@ -135,6 +137,8 @@ export class DocumentViewerElement extends HTMLElement {
 
   async #initializeViewer(): Promise<void> {
     const initializationId = ++this.#initializationId;
+
+    ++this.#documentLoadId;
 
     this.#contentElement.innerHTML =
       "<p>Loading documentation...</p>";
@@ -289,37 +293,82 @@ export class DocumentViewerElement extends HTMLElement {
   async #displayDocument(
     document: ManifestDocument,
   ): Promise<void> {
-    if (!this.#manifestUrl) {
-      throw new Error("Manifest URL is not available.");
-    }
+    const documentLoadId =
+      ++this.#documentLoadId;
 
     this.#setActiveDocument(document.id);
+
     this.#contentElement.innerHTML =
       "<p>Loading document...</p>";
 
-    const documentUrl = new URL(
-      document.contentPath,
-      this.#manifestUrl,
-    );
+    try {
+      if (!this.#manifestUrl) {
+        throw new Error(
+          "Manifest URL is not available.",
+        );
+      }
 
-    const response = await fetch(documentUrl);
-
-    if (!response.ok) {
-      throw new Error(
-        `Document "${document.id}" could not be loaded ` +
-          `with status ${response.status}.`,
+      const documentUrl = new URL(
+        document.contentPath,
+        this.#manifestUrl,
       );
+
+      const response = await fetch(documentUrl);
+
+      if (
+        documentLoadId !== this.#documentLoadId
+      ) {
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(
+          `Document "${document.id}" could not be loaded ` +
+            `with status ${response.status}.`,
+        );
+      }
+
+      const markdown = await response.text();
+
+      if (
+        documentLoadId !== this.#documentLoadId
+      ) {
+        return;
+      }
+
+      const renderedHtml =
+        await marked.parse(markdown);
+
+      if (
+        documentLoadId !== this.#documentLoadId
+      ) {
+        return;
+      }
+
+      this.#contentElement.innerHTML =
+        renderedHtml;
+
+      resolveDocumentUrls(
+        this.#contentElement,
+        response.url,
+      );
+    } catch (error: unknown) {
+      if (
+        documentLoadId !== this.#documentLoadId
+      ) {
+        return;
+      }
+
+      const message =
+        error instanceof Error
+          ? error.message
+          : String(error);
+
+      this.#contentElement.innerHTML = `
+        <h1>Document could not be loaded</h1>
+        <pre>${escapeHtml(message)}</pre>
+      `;
     }
-
-    const markdown = await response.text();
-    const renderedHtml = await marked.parse(markdown);
-
-    this.#contentElement.innerHTML = renderedHtml;
-
-    resolveDocumentUrls(
-      this.#contentElement,
-      response.url,
-    );
   }
 
   readonly #handleHashChange = (): void => {

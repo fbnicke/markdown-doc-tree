@@ -41,6 +41,10 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 * The current tests continue to use the real filesystem adapters.
 * The viewer package entry currently supports side-effect registration but does not yet publish separate TypeScript declaration files for the exported `DocumentViewerElement` class.
 
+### Fixed
+
+* Prevented stale document responses from replacing the most recently selected document.
+* Rendered document loading failures inside the viewer instead of producing unhandled promise rejections.
 
 ## [0.1.0]
 
