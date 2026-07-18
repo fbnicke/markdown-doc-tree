@@ -50,21 +50,26 @@ export class DocumentViewerElement extends HTMLElement {
     this.#shadowRoot.innerHTML = `
       <style>${componentStyles}</style>
 
-      <div class="documentation-layout">
-        <aside class="documentation-sidebar">
-          <div class="documentation-brand">
+      <div
+        class="documentation-layout"
+        part="layout"
+      >
+        <aside class="documentation-sidebar" part="sidebar">
+          <div class="documentation-brand" part="brand">
             Markdown Doc Tree
           </div>
 
           <nav
             id="documentation-tree"
             aria-label="Documentation"
+            part="navigation"
           ></nav>
         </aside>
 
         <main
           id="documentation-content"
           class="documentation-content"
+          part="content"
         >
           <p>Loading documentation...</p>
         </main>
@@ -233,12 +238,13 @@ export class DocumentViewerElement extends HTMLElement {
             : "";
 
         return `
-          <li>
+          <li part="navigation-item">
             <a
               href="#${document.id}"
               data-document-id="${document.id}"
+              part="navigation-link"
             >
-              <span class="document-id">
+              <span class="document-id" part="document-id">
                 ${document.id}
               </span>
 
@@ -251,7 +257,7 @@ export class DocumentViewerElement extends HTMLElement {
       })
       .join("");
 
-    return `<ul>${items}</ul>`;
+    return `<ul part="navigation-list">${items}</ul>`;
   }
 
   #findInitialDocument(
@@ -438,9 +444,18 @@ export class DocumentViewerElement extends HTMLElement {
       );
 
     for (const link of links) {
+      const active = link.dataset.documentId === documentId;
+
       link.classList.toggle(
         "active",
-        link.dataset.documentId === documentId,
+        active,
+      );
+
+      link.setAttribute(
+        "part",
+        active
+          ? "navigation-link navigation-link-active"
+          : "navigation-link",
       );
     }
   }

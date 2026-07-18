@@ -351,6 +351,131 @@ describe("DocumentViewerElement", () => {
       "status 404",
     );
   });
+
+  it("exposes public styling parts", async () => {
+    const viewer = document.createElement(
+      "markdown-doc-tree",
+    );
+
+    viewer.setAttribute(
+      "manifest-url",
+      "/docs-manifest.json",
+    );
+
+    document.body.append(viewer);
+
+    await expectDocumentHeading(
+      viewer,
+      "Getting Started",
+    );
+
+    const shadowRoot = viewer.shadowRoot;
+
+    expect(
+      shadowRoot?.querySelector(
+        '[part="layout"]',
+      ),
+    ).not.toBeNull();
+
+    expect(
+      shadowRoot?.querySelector(
+        '[part="sidebar"]',
+      ),
+    ).not.toBeNull();
+
+    expect(
+      shadowRoot?.querySelector(
+        '[part="brand"]',
+      ),
+    ).not.toBeNull();
+
+    expect(
+      shadowRoot?.querySelector(
+        '[part="navigation"]',
+      ),
+    ).not.toBeNull();
+
+    expect(
+      shadowRoot?.querySelector(
+        '[part="content"]',
+      ),
+    ).not.toBeNull();
+
+    expect(
+      shadowRoot?.querySelectorAll(
+        '[part="navigation-list"]',
+      ),
+    ).toHaveLength(1);
+
+    expect(
+      shadowRoot?.querySelectorAll(
+        '[part="navigation-item"]',
+      ),
+    ).toHaveLength(3);
+
+    expect(
+      shadowRoot?.querySelectorAll(
+        '[part="document-id"]',
+      ),
+    ).toHaveLength(3);
+  });
+
+  it("exposes the active navigation link as a part", async () => {
+    const viewer = document.createElement(
+      "markdown-doc-tree",
+    );
+
+    viewer.setAttribute(
+      "manifest-url",
+      "/docs-manifest.json",
+    );
+
+    document.body.append(viewer);
+
+    await expectDocumentHeading(
+      viewer,
+      "Getting Started",
+    );
+
+    const gettingStartedLink =
+      viewer.shadowRoot
+        ?.querySelector<HTMLAnchorElement>(
+          '[data-document-id="1"]',
+        );
+
+    const usageLink =
+      viewer.shadowRoot
+        ?.querySelector<HTMLAnchorElement>(
+          '[data-document-id="2"]',
+        );
+
+    expect(
+      gettingStartedLink?.getAttribute("part"),
+    ).toBe(
+      "navigation-link navigation-link-active",
+    );
+
+    expect(
+      usageLink?.getAttribute("part"),
+    ).toBe("navigation-link");
+
+    usageLink?.click();
+
+    await expectDocumentHeading(
+      viewer,
+      "Usage",
+    );
+
+    expect(
+      gettingStartedLink?.getAttribute("part"),
+    ).toBe("navigation-link");
+
+    expect(
+      usageLink?.getAttribute("part"),
+    ).toBe(
+      "navigation-link navigation-link-active",
+    );
+  });
 });
 
 async function expectDocumentHeading(

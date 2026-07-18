@@ -13,7 +13,9 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 * Added a dedicated ESM library build for the embeddable viewer.
 * Added the `markdown-doc-tree/viewer` package export for registering the Web Component in consuming applications.
 * Added shadow-DOM style encapsulation for the viewer.
-
+* Added internal and URL-hash navigation modes to the Web Component.
+* Added initial-document selection through the `initial-document` attribute.
+* Added public CSS shadow parts for overriding viewer layout, navigation, active-state, and content styles.
 
 ### Changed
 
