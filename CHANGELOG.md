@@ -39,7 +39,6 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 * PDF manual generation still contains direct filesystem, path, URL, and Playwright dependencies inside the application use case. These responsibilities will be extracted behind an outbound port.
 * The current tests continue to use the real filesystem adapters.
-* The Web Component currently uses the host page’s global URL hash for document navigation. An internal navigation mode is still required for isolated help-dialog usage.
 * The viewer package entry currently supports side-effect registration but does not yet publish separate TypeScript declaration files for the exported `DocumentViewerElement` class.
 
 

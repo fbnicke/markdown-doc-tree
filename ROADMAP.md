@@ -14,8 +14,8 @@ The goal of v0.2.0 is to turn the standalone viewer into a reusable framework-in
 * [x] Expose the viewer through `markdown-doc-tree/viewer`
 * [x] Verify direct embedding in plain HTML
 * [x] Verify direct consumption from an Angular application
-* [ ] Add isolated internal navigation for embedded help-dialog usage
-* [ ] Support selecting the initial document through component configuration
+* [x] Add isolated internal navigation for embedded help-dialog usage
+* [x] Support selecting the initial document through component configuration
 * [ ] Document Angular integration
 * [ ] Add PDF table-of-contents page numbers
 * [ ] Preserve Linux and Windows compatibility

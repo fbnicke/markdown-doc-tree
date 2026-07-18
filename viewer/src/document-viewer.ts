@@ -23,8 +23,14 @@ type LoadedManifest = {
   manifestUrl: URL;
 };
 
+type NavigationMode = "internal" | "hash";
+
 export class DocumentViewerElement extends HTMLElement {
-  static readonly observedAttributes = ["manifest-url"];
+  static readonly observedAttributes = [
+    "manifest-url",
+    "navigation-mode",
+    "initial-document",
+  ];
 
   readonly #shadowRoot: ShadowRoot;
   readonly #treeElement: HTMLElement;
@@ -34,6 +40,7 @@ export class DocumentViewerElement extends HTMLElement {
   #manifestUrl?: URL;
   #initializationId = 0;
   #connected = false;
+  #hashChangeListenerAttached = false;
 
   constructor() {
     super();
@@ -91,10 +98,7 @@ export class DocumentViewerElement extends HTMLElement {
       this.#handleTreeClick,
     );
 
-    window.addEventListener(
-      "hashchange",
-      this.#handleHashChange,
-    );
+    this.#synchronizeHashChangeListener();
 
     void this.#initializeViewer();
   }
@@ -107,10 +111,7 @@ export class DocumentViewerElement extends HTMLElement {
       this.#handleTreeClick,
     );
 
-    window.removeEventListener(
-      "hashchange",
-      this.#handleHashChange,
-    );
+    this.#synchronizeHashChangeListener();
   }
 
   attributeChangedCallback(
@@ -119,12 +120,17 @@ export class DocumentViewerElement extends HTMLElement {
     newValue: string | null,
   ): void {
     if (
-      name === "manifest-url" &&
-      oldValue !== newValue &&
-      this.#connected
+      oldValue === newValue ||
+      !this.#connected
     ) {
-      void this.#initializeViewer();
+      return;
     }
+
+    if (name === "navigation-mode") {
+      this.#synchronizeHashChangeListener();
+    }
+
+    void this.#initializeViewer();
   }
 
   async #initializeViewer(): Promise<void> {
@@ -156,7 +162,6 @@ export class DocumentViewerElement extends HTMLElement {
 
       const initialDocument = this.#findInitialDocument(
         manifest,
-        window.location.hash.slice(1),
       );
 
       if (initialDocument) {
@@ -247,19 +252,38 @@ export class DocumentViewerElement extends HTMLElement {
 
   #findInitialDocument(
     manifest: DocumentationManifest,
-    requestedId: string,
   ): ManifestDocument | undefined {
-    if (requestedId) {
-      const requestedDocument = manifest.documents.find(
-        (document) => document.id === requestedId,
-      );
+    const hashDocument =
+      this.#getNavigationMode() === "hash"
+        ? this.#findDocument(
+            manifest,
+            window.location.hash.slice(1),
+          )
+        : undefined;
 
-      if (requestedDocument) {
-        return requestedDocument;
-      }
+    if (hashDocument) {
+      return hashDocument;
     }
 
-    return manifest.documents[0];
+    const configuredDocument = this.#findDocument(
+      manifest,
+      this.getAttribute("initial-document"),
+    );
+
+    return configuredDocument ?? manifest.documents[0];
+  }
+
+  #findDocument(
+    manifest: DocumentationManifest,
+    documentId: string | null,
+  ): ManifestDocument | undefined {
+    if (!documentId) {
+      return undefined;
+    }
+
+    return manifest.documents.find(
+      (document) => document.id === documentId,
+    );
   }
 
   async #displayDocument(
@@ -299,8 +323,15 @@ export class DocumentViewerElement extends HTMLElement {
   }
 
   readonly #handleHashChange = (): void => {
-    const documentId = window.location.hash.slice(1);
-    const document = this.#documentsById.get(documentId);
+    if (this.#getNavigationMode() !== "hash") {
+      return;
+    }
+
+    const documentId =
+      window.location.hash.slice(1);
+
+    const document =
+      this.#documentsById.get(documentId);
 
     if (document) {
       void this.#displayDocument(document);
@@ -330,13 +361,21 @@ export class DocumentViewerElement extends HTMLElement {
       return;
     }
 
+    const document = this.#documentsById.get(documentId);
+
+    if (!document) {
+      return
+    };
+
+    if(
+      this.#getNavigationMode() === "internal"
+    ) {
+      void this.#displayDocument(document);
+      return;
+    }
+
     if (window.location.hash === `#${documentId}`) {
-      const document = this.#documentsById.get(documentId);
-
-      if (document) {
-        void this.#displayDocument(document);
-      }
-
+      void this.#displayDocument(document);
       return;
     }
 
@@ -355,6 +394,41 @@ export class DocumentViewerElement extends HTMLElement {
         link.dataset.documentId === documentId,
       );
     }
+  }
+
+  #getNavigationMode(): NavigationMode {
+    return this.getAttribute(
+      "navigation-mode",
+    ) === "hash" 
+      ? "hash" 
+      : "internal";
+  }
+
+  #synchronizeHashChangeListener(): void {
+    const shouldListen =
+      this.#connected &&
+      this.#getNavigationMode() === "hash";
+
+    if (
+      shouldListen ===
+      this.#hashChangeListenerAttached
+    ) {
+      return;
+    }
+
+    if (shouldListen) {
+      window.addEventListener(
+        "hashchange",
+        this.#handleHashChange,
+      );
+    } else {
+      window.removeEventListener(
+        "hashchange",
+        this.#handleHashChange,
+      );
+    }
+
+    this.#hashChangeListenerAttached = shouldListen;
   }
 }
 
