@@ -1,0 +1,46 @@
+@page {
+  margin: 25mm 20mm 25mm 20mm;
+
+  @bottom-left {
+    content: "Markdown Doc Tree";
+    font-size: 8pt;
+  }
+
+  @bottom-right {
+    content: counter(page);
+    font-size: 8pt;
+  }
+}
+
+.mdt-document {
+  font-family: Georgia, serif;
+  color: #2d1f3f;
+}
+
+.mdt-cover {
+  background: #f3e8ff;
+  padding: 20mm;
+}
+
+.mdt-cover__title {
+  color: #6b21a8;
+  font-size: 34pt;
+}
+
+.mdt-cover__subtitle {
+  color: #7e22ce;
+}
+
+.mdt-toc__title {
+  color: #6b21a8;
+}
+
+.mdt-toc__document-id {
+  color: #9333ea;
+}
+
+.mdt-section__content h1,
+.mdt-section__content h2,
+.mdt-section__content h3 {
+  color: #6b21a8;
+}

@@ -9,7 +9,6 @@ import { generateDocumentationManifest } from '../../../application/use-cases/ge
 import { fileSystemDocumentationSourceReader } from '../../outbound/filesystem/scan-document-directory.js';
 import { fileSystemDocumentationManifestPublisher } from '../../outbound/filesystem/file-system-documentation-manifest-publisher.js';
 
-
 type CliOptions =
 | {
   command: "validate";
@@ -27,6 +26,7 @@ type CliOptions =
   directory: string;
   outputFile: string;
   title: string;
+  stylesheet?: string;
   missingParentSeverity: DocumentationDiagnosticSeverity;
 };
 
@@ -75,6 +75,7 @@ async function main(): Promise<void> {
       {
         outputFile,
         title: options.title,
+        stylesheet: options.stylesheet,
         missingParentSeverity:
           options.missingParentSeverity,
       },
@@ -233,6 +234,12 @@ function parseArguments(args: string[]): CliOptions {
         ? flags[titleFlagIndex + 1]
         : "Documentation Manual";
 
+    const stylesheetFlagIndex = flags.indexOf("--stylesheet");
+    const stylesheet =
+      stylesheetFlagIndex >= 0
+        ? flags[stylesheetFlagIndex + 1]
+        : undefined;
+
     if (!outputFile) {
       throw new Error(
         'Option "--output" requires a file path.',
@@ -245,12 +252,23 @@ function parseArguments(args: string[]): CliOptions {
       );
     }
 
+    if (
+      stylesheetFlagIndex >= 0 &&
+      !stylesheet
+    ) {
+      throw new Error(
+        'Option "--stylesheet" requires a filepath.',
+      );
+    }
+
     const consumedValues = new Set([
       "--strict-missing-parents",
       "--output",
       outputFile,
       "--title",
       title,
+      "--stylesheet",
+      ...(stylesheet ? [stylesheet] : []),
     ]);
 
     const unknownFlags = flags.filter(
@@ -268,6 +286,7 @@ function parseArguments(args: string[]): CliOptions {
       directory,
       outputFile,
       title,
+      stylesheet,
       missingParentSeverity,
     };
   }
@@ -329,6 +348,9 @@ Options:
   --title <title>
       Manual title used for PDF generation.
 
+  --stylesheet <path>
+      Additional stylesheet used to customize PDF output.
+
 Examples:
   markdown-doc-tree validate ./docs
 
@@ -337,6 +359,7 @@ Examples:
 
   markdown-doc-tree pdf ./docs
   markdown-doc-tree pdf ./docs --output ./manual.pdf --title "Customer Manual"
+  markdown-doc-tree pdf ./docs --stylesheet ./company-manual.css
 `);
 }
 

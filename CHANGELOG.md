@@ -16,6 +16,9 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 * Added internal and URL-hash navigation modes to the Web Component.
 * Added initial-document selection through the `initial-document` attribute.
 * Added public CSS shadow parts for overriding viewer layout, navigation, active-state, and content styles.
+* Added Paged.js-based PDF pagination with page numbers in the table of contents.
+* Added stable `.mdt-*` PDF styling hooks and support for custom branding through `pdf --stylesheet <path>`.
+* Added a branded PDF stylesheet example.
 
 ### Changed
 

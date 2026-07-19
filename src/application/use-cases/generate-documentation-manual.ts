@@ -13,11 +13,20 @@ import {
 } from "./validate-documentation.js";
 import type { DocumentNode } from '../../domain/document-node.js';
 import { DocumentationSourceReader } from '../../ports/outbound/documentation-source-reader.js';
+import { createRequire } from 'node:module';
+
+const require = createRequire(import.meta.url);
+const pagedJsPackageEntry = require.resolve("pagedjs");
+const pagedJsScriptPath = path.join(
+  path.dirname(pagedJsPackageEntry),
+  "../dist/paged.polyfill.js",
+);
 
 export type GenerateDocumentationManualOptions =
   ValidateDocumentationOptions & {
     outputFile: string;
     title?: string;
+    stylesheet?: string;
   };
 
 export async function generateDocumentationManual(
@@ -58,10 +67,15 @@ export async function generateDocumentationManual(
 
   const tableOfContents = renderTableOfContents(validation.tree);
 
+  const customStylesheet = options.stylesheet
+    ? await readCustomStylesheet(options.stylesheet)
+    : undefined;
+
   const html = createManualHtml({
     title: options.title ?? "Documentation Manual",
     tableOfContents,
     body,
+    customStylesheet,
   });
 
   const htmlFile = path.join(
@@ -116,10 +130,10 @@ async function renderDocumentNode(
 
   return `
     <section
-      class="manual-section manual-level-${node.order.length}"
+      class="mdt-section mdt-section--level-${node.order.length}"
       id="document-${escapeAttribute(node.id)}"
     >
-      <div class="manual-document">
+      <div class="mdt-section__content">
         ${rewrittenHtml}
       </div>
 
@@ -199,6 +213,7 @@ type ManualHtmlOptions = {
   title: string;
   tableOfContents: string;
   body: string;
+  customStylesheet?: string;
 };
 
 function createManualHtml(
@@ -238,7 +253,7 @@ function createManualHtml(
         margin: 0;
       }
 
-      .title-page {
+      .mdt-cover {
         display: flex;
         min-height: 240mm;
         flex-direction: column;
@@ -246,21 +261,21 @@ function createManualHtml(
         page-break-after: always;
       }
 
-      .title-page h1 {
+      .mdt-cover__title {
         margin: 0;
         font-size: 30pt;
       }
 
-      .title-page p {
+      .mdt-cover__subtitle {
         margin-top: 12mm;
         color: #64748b;
       }
 
-      .manual-level-1 {
+      .mdt-section--level-1 {
         break-before: page;
       }
 
-      .manual-level-1:first-of-type {
+      .mdt-section--level-1:first-of-type {
         break-before: auto;
       }
 
@@ -336,56 +351,92 @@ function createManualHtml(
         color: inherit;
       }
 
-      .table-of-contents {
+      .mdt-toc {
         break-after: page;
       }
 
-      .table-of-contents h1 {
+      .mdt-toc__title {
         margin-bottom: 10mm;
       }
 
-      .table-of-contents-list,
-      .table-of-contents-list ol {
+      .mdt-toc__list,
+      .mdt-toc__list ol {
         margin: 0;
         padding-left: 0;
         list-style: none;
       }
 
-      .table-of-contents-list ol {
+      .mdt-toc__list ol {
         padding-left: 8mm;
       }
 
-      .table-of-contents-list li {
+      .mdt-toc__list li {
         margin: 2.5mm 0;
       }
 
-      .table-of-contents-list a {
+      .mdt-toc__link {
         display: flex;
         gap: 3mm;
         color: inherit;
         text-decoration: none;
+        align-items: baseline;
       }
 
-      .toc-document-id {
+      .mdt-toc__link::after {
+        content: target-counter(attr(href url), page);
+        order: 3;
+        margin-left: auto;
+        color: #64748b;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .mdt-toc__link::before {
+        content: "";
+        order: 2;
+        flex: 1;
+        border-bottom: 1px dotted #cbd5e1;
+      }
+
+      .mdt-toc__link > * {
+        order: 1;
+      }
+
+      .mdt-toc__document-id {
         min-width: 15mm;
         color: #64748b;
         font-variant-numeric: tabular-nums;
       }
     </style>
+    ${
+      options.customStylesheet
+        ? `
+          <style data-mdt-custom-stylesheet>
+            ${options.customStylesheet}
+          </style>
+        `
+        : ""
+    }
   </head>
 
-  <body>
-    <section class="title-page">
-      <h1>${escapeHtml(options.title)}</h1>
-      <p>Generated with Markdown Doc Tree</p>
+  <body class="mdt-document">
+    <section class="mdt-cover">
+      <h1 class="mdt-cover__title">
+        ${escapeHtml(options.title)}
+      </h1>
+      <p class="mdt-cover__subtitle">
+        Generated with Markdown Doc Tree
+      </p>
     </section>
 
-    <section class="table-of-contents">
-      <h1>Table of Contents</h1>
+    <section class="mdt-toc">
+      <h1 class="mdt-toc__title">
+        Table of Contents
+      </h1>
+
       ${options.tableOfContents}
     </section>
 
-    <main>
+    <main class="mdt-content">
       ${options.body}
     </main>
   </body>
@@ -427,6 +478,38 @@ async function renderPdf(
       media: "print",
     });
 
+    await page.evaluate(() => {
+      (
+        window as typeof window & {
+          PagedConfig?: {
+            auto: boolean;
+          };
+        }
+      ).PagedConfig = {
+        auto: false,
+      };
+    });
+
+    await page.addScriptTag({
+      path: pagedJsScriptPath,
+    });
+
+    await page.evaluate(async () => {
+      const pagedWindow = window as typeof window & {
+        PagedPolyfill?: {
+          preview(): Promise<unknown>;
+        };
+      };
+
+      if (!pagedWindow.PagedPolyfill) {
+        throw new Error(
+          "Paged.js polyfill was not loaded.",
+        );
+      }
+
+      await pagedWindow.PagedPolyfill.preview();
+    });
+
     await page.pdf({
       path: outputFile,
       format: "A4",
@@ -443,7 +526,7 @@ function renderTableOfContents(
   nodes: DocumentNode[],
 ): string {
   return `
-    <ol class="table-of-contents-list">
+    <ol class="mdt-toc__list">
       ${nodes
         .map(renderTableOfContentsNode)
         .join("\n")}
@@ -467,15 +550,28 @@ function renderTableOfContentsNode(
 
   return `
     <li>
-      <a href="#document-${escapeAttribute(node.id)}">
-        <span class="toc-document-id">
+      <a
+        class="mdt-toc__link"
+        href="#document-${escapeAttribute(node.id)}"
+      >
+        <span class="mdt-toc__document-id">
           ${escapeHtml(node.id)}
         </span>
 
-        <span>${escapeHtml(node.title)}</span>
+        <span class="mdt-toc__document-title">
+          ${escapeHtml(node.title)}
+        </span>
       </a>
 
       ${children}
     </li>
   `;
+}
+
+async function readCustomStylesheet(
+  stylesheet: string,
+): Promise<string> {
+  const stylesheetPath = path.resolve(stylesheet);
+
+  return readFile(stylesheetPath, "utf8");
 }

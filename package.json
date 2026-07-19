@@ -66,6 +66,7 @@
   },
   "dependencies": {
     "marked": "^18.0.6",
+    "pagedjs": "^0.4.3",
     "playwright": "^1.61.1"
   }
 }
