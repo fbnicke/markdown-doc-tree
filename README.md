@@ -219,6 +219,185 @@ Relative links and images are resolved from the source Markdown file location.
 
 > Documentation sources are assumed to be trusted. Raw HTML contained in Markdown is rendered by the viewer.
 
+## Embedding the viewer
+
+Install the package and import the viewer entry point once in the consuming application:
+
+```ts
+import "markdown-doc-tree/viewer";
+```
+
+Then add the Web Component:
+
+```html
+<markdown-doc-tree
+  manifest-url="/docs/docs-manifest.json"
+  navigation-mode="internal"
+  initial-document="1"
+></markdown-doc-tree>
+```
+
+The viewer supports the following attributes:
+
+| Attribute          | Description                                                                                                               |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------------- |
+| `manifest-url`     | URL of the generated documentation manifest. Defaults to `/docs-manifest.json`.                                           |
+| `navigation-mode`  | Navigation behavior. Use `internal` for embedded viewers or `hash` for URL-hash navigation. Defaults to `internal`.       |
+| `initial-document` | ID of the document selected when the viewer loads. The first manifest document is used when no matching ID is configured. |
+
+The manifest, Markdown files, and referenced assets must be available through HTTP from the consuming application.
+
+### Angular integration
+
+Import the viewer once, for example in `main.ts`:
+
+```ts
+import "markdown-doc-tree/viewer";
+```
+
+Angular must be configured to accept custom elements.
+
+For a standalone component:
+
+```ts
+import {
+  Component,
+  CUSTOM_ELEMENTS_SCHEMA,
+} from "@angular/core";
+
+@Component({
+  selector: "app-help",
+  standalone: true,
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  templateUrl: "./help.component.html",
+})
+export class HelpComponent {
+  readonly manifestUrl =
+    "/assets/documentation/docs-manifest.json";
+
+  readonly initialDocument = "1";
+}
+```
+
+Use attribute bindings in the component template:
+
+```html
+<markdown-doc-tree
+  [attr.manifest-url]="manifestUrl"
+  [attr.initial-document]="initialDocument"
+  navigation-mode="internal"
+></markdown-doc-tree>
+```
+
+For an NgModule-based application, add `CUSTOM_ELEMENTS_SCHEMA` to the module instead:
+
+```ts
+import {
+  CUSTOM_ELEMENTS_SCHEMA,
+  NgModule,
+} from "@angular/core";
+
+@NgModule({
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+})
+export class AppModule {}
+```
+
+The generated manifest directory must be copied into Angular's served assets. For example:
+
+```text
+src/assets/documentation/
+├─ docs-manifest.json
+└─ content/
+   ├─ 1_Getting-Started.md
+   └─ images/
+      └─ installation.png
+```
+
+The Web Component does not require Playwright or Chromium. Those dependencies are only used by local PDF generation.
+
+## Viewer styling
+
+The viewer uses shadow DOM to isolate its internal styles. Consuming applications can customize the exposed elements through CSS shadow parts.
+
+Example:
+
+```css
+markdown-doc-tree {
+  min-height: 40rem;
+  color: #202124;
+  background: #ffffff;
+  font-family: Arial, sans-serif;
+}
+
+markdown-doc-tree::part(layout) {
+  grid-template-columns: 20rem minmax(0, 1fr);
+  min-height: 40rem;
+}
+
+markdown-doc-tree::part(sidebar) {
+  padding: 1.5rem;
+  border-right: 1px solid #d0d7de;
+  background: #f6f8fa;
+}
+
+markdown-doc-tree::part(brand) {
+  color: #0b57d0;
+  font-size: 1.25rem;
+}
+
+markdown-doc-tree::part(navigation-link) {
+  border-radius: 0.25rem;
+  color: #374151;
+}
+
+markdown-doc-tree::part(navigation-link-active) {
+  color: #ffffff;
+  background: #0b57d0;
+  font-weight: 700;
+}
+
+markdown-doc-tree::part(document-id) {
+  color: inherit;
+  opacity: 0.7;
+}
+
+markdown-doc-tree::part(content) {
+  width: min(75rem, 100%);
+  padding: 3rem;
+}
+```
+
+The following parts are public:
+
+| Part                     | Element                                        |
+| ------------------------ | ---------------------------------------------- |
+| `layout`                 | Root layout container                          |
+| `sidebar`                | Navigation sidebar                             |
+| `brand`                  | Viewer brand heading                           |
+| `navigation`             | Navigation element containing the tree         |
+| `navigation-list`        | Each generated navigation list                 |
+| `navigation-item`        | Each generated navigation list item            |
+| `navigation-link`        | Every document navigation link                 |
+| `navigation-link-active` | The currently selected document link           |
+| `document-id`            | Numeric document ID displayed before the title |
+| `content`                | Main Markdown content container                |
+
+Multiple matching elements may expose the same part. For example, every nested tree list exposes `navigation-list`, and every document link exposes `navigation-link`.
+
+The active link exposes both parts simultaneously:
+
+```text
+navigation-link navigation-link-active
+```
+
+This means base link styles can be defined through `navigation-link` and only the selected state overridden through `navigation-link-active`.
+
+The host element itself can be styled with the normal `markdown-doc-tree` selector. This is useful for inherited properties such as fonts and colors, as well as the component's outer height and background.
+
+The `content` part exposes the Markdown container, but the individual rendered headings, tables, images, code blocks, and other descendants are not separate public parts.
+
+
 ## PDF generation
 
 The PDF pipeline is:

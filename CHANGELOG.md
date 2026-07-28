@@ -21,6 +21,8 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 * Added a branded PDF stylesheet example.
 * Added the `serve` command for generating a temporary documentation manifest and opening the documentation in a local viewer.
 * Added `--port` and `--no-open` options for local viewer sessions.
+* Added Angular integration documentation for the embeddable viewer.
+* Documented all public CSS shadow parts exposed by the viewer.
 
 ### Changed
 

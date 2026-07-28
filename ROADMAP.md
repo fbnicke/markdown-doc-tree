@@ -18,7 +18,8 @@ The goal of v0.2.0 is to turn the standalone viewer into a reusable framework-in
 * [x] Add isolated internal navigation for embedded help-dialog usage
 * [x] Support selecting the initial document through component configuration
 * [x] Add a first-class local authoring workflow that generates a manifest and serves the viewer for a documentation directory
-* [ ] Document Angular integration
+* [x] Document Angular integration
+* [x] Document the public viewer styling API
 * [x] Add PDF table-of-contents page numbers
 * [ ] Preserve Linux and Windows compatibility
 
