@@ -41,6 +41,7 @@
     "test:run": "vitest run",
     "dev": "tsx src/index.ts",
     "build": "tsc -p tsconfig.build.json",
+    "prepack": "npm run build && npm run viewer:build:library",
     "viewer:dev": "npm run example:manifest && vite",
     "viewer:build": "npm run example:manifest && vite build && tsx scripts/clean-viewer-staging.ts",
     "viewer:build:library": "vite build --config viewer/vite.library.config.ts",

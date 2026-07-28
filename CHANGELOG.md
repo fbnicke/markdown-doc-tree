@@ -19,6 +19,8 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 * Added Paged.js-based PDF pagination with page numbers in the table of contents.
 * Added stable `.mdt-*` PDF styling hooks and support for custom branding through `pdf --stylesheet <path>`.
 * Added a branded PDF stylesheet example.
+* Added the `serve` command for generating a temporary documentation manifest and opening the documentation in a local viewer.
+* Added `--port` and `--no-open` options for local viewer sessions.
 
 ### Changed
 
@@ -50,6 +52,7 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 * Prevented stale document responses from replacing the most recently selected document.
 * Rendered document loading failures inside the viewer instead of producing unhandled promise rejections.
+* Ensured local viewer shutdown closes persistent browser connections and removes its temporary workspace after a single interrupt.
 
 ## [0.1.0]
 

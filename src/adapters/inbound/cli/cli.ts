@@ -8,6 +8,7 @@ import { generateDocumentationManual } from '../../../application/use-cases/gene
 import { generateDocumentationManifest } from '../../../application/use-cases/generate-documentation-manifest.js';
 import { fileSystemDocumentationSourceReader } from '../../outbound/filesystem/scan-document-directory.js';
 import { fileSystemDocumentationManifestPublisher } from '../../outbound/filesystem/file-system-documentation-manifest-publisher.js';
+import { serveDocumentationViewer } from "./serve-documentation-viewer.js";
 
 type CliOptions =
 | {
@@ -19,6 +20,13 @@ type CliOptions =
   command: "manifest";
   directory: string;
   outputFile: string;
+  missingParentSeverity: DocumentationDiagnosticSeverity;
+}
+| {
+  command: "serve";
+  directory: string;
+  port: number;
+  openBrowser: boolean;
   missingParentSeverity: DocumentationDiagnosticSeverity;
 }
 | {
@@ -55,6 +63,29 @@ async function main(): Promise<void> {
 
     console.log(
       `Documentation manifest written to:\n${outputFile}`,
+    );
+
+    return;
+  }
+
+  if (options.command === "serve") {
+    const rootDirectory = path.resolve(
+      options.directory,
+    );
+
+    console.log(
+      `Preparing documentation from:\n${rootDirectory}`,
+    );
+
+    await serveDocumentationViewer(
+      rootDirectory,
+      {
+        port: options.port,
+        openBrowser:
+          options.openBrowser,
+        missingParentSeverity:
+          options.missingParentSeverity,
+      },
     );
 
     return;
@@ -217,6 +248,60 @@ function parseArguments(args: string[]): CliOptions {
     };
   }
 
+  if (command === "serve") {
+    const portFlagIndex = flags.indexOf("--port");
+
+    const portValue =
+      portFlagIndex >= 0
+        ? flags[portFlagIndex + 1]
+        : "4173";
+
+    if (!portValue) {
+      throw new Error(
+        'Option "--port" requires a port number.',
+      );
+    }
+
+    const port = Number(portValue);
+
+    if (
+      !Number.isInteger(port) ||
+      port < 1 ||
+      port > 65535
+    ) {
+      throw new Error(
+        `Invalid port: "${portValue}".`,
+      );
+    }
+
+    const openBrowser = !flags.includes("--no-open");
+
+    const knownFlags = new Set([
+      "--strict-missing-parents",
+      "--no-open",
+      "--port",
+      portValue,
+    ]);
+
+    const unknownFlags = flags.filter(
+      (flag) => !knownFlags.has(flag),
+    );
+
+    if (unknownFlags.length > 0) {
+      throw new Error(
+        `Unknown option: "${unknownFlags[0]}".`,
+      );
+    }
+
+    return {
+      command: "serve",
+      directory,
+      port,
+      openBrowser,
+      missingParentSeverity,
+    };
+  }
+
   if (command === "pdf") {
     const outputFlagIndex =
       flags.indexOf("--output");
@@ -336,6 +421,7 @@ Markdown Doc Tree
 Usage:
   markdown-doc-tree validate <directory> [options]
   markdown-doc-tree manifest <directory> [options]
+  markdown-doc-tree serve <directory> [options]
   markdown-doc-tree pdf <directory> [options]
 
 Options:
@@ -344,6 +430,12 @@ Options:
 
   --output <path>
       Output file.
+
+  --port <number>
+    Local viewer server port. Defaults to 4173.
+
+  --no-open
+    Start the viewer without opening a browser.
 
   --title <title>
       Manual title used for PDF generation.
@@ -356,6 +448,10 @@ Examples:
 
   markdown-doc-tree manifest ./docs
   markdown-doc-tree manifest ./docs --output ./public/docs-manifest.json
+
+  markdown-doc-tree serve ./docs
+  markdown-doc-tree serve ./docs --port 8080
+  markdown-doc-tree serve ./docs --no-open
 
   markdown-doc-tree pdf ./docs
   markdown-doc-tree pdf ./docs --output ./manual.pdf --title "Customer Manual"

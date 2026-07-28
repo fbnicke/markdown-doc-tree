@@ -47,6 +47,26 @@ npm install
 npx playwright install chromium
 ```
 
+## Quick start
+
+Point the CLI at a directory of numbered Markdown files:
+
+```bash
+markdown-doc-tree serve ./docs
+```
+
+The command validates the documentation, generates a temporary manifest, starts a local viewer, and opens it in the default browser.
+
+Generate a printable PDF from the same source directory:
+
+```bash
+markdown-doc-tree pdf ./docs \
+  --output ./manual.pdf \
+  --title "Documentation Manual"
+```
+
+PDF generation runs locally and requires the installed Playwright Chromium browser. Embedding the viewer in an application does not require Chromium.
+
 ## Development
 
 Run the test suite:
@@ -86,6 +106,20 @@ npm run example:pdf
 ```
 
 ## CLI
+
+Open a documentation directory in the local viewer:
+
+```bash
+markdown-doc-tree serve ./docs
+```
+
+Use another port or suppress automatic browser opening:
+
+```bash
+markdown-doc-tree serve ./docs --port 8080
+markdown-doc-tree serve ./docs --no-open
+```
+
 
 Validate a documentation directory:
 

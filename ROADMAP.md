@@ -17,8 +17,9 @@ The goal of v0.2.0 is to turn the standalone viewer into a reusable framework-in
 * [x] Verify direct consumption from an Angular application
 * [x] Add isolated internal navigation for embedded help-dialog usage
 * [x] Support selecting the initial document through component configuration
+* [x] Add a first-class local authoring workflow that generates a manifest and serves the viewer for a documentation directory
 * [ ] Document Angular integration
-* [ ] Add PDF table-of-contents page numbers
+* [x] Add PDF table-of-contents page numbers
 * [ ] Preserve Linux and Windows compatibility
 
 
@@ -32,6 +33,7 @@ v0.2.0 is complete when:
 - consuming applications can override viewer styles through public CSS shadow parts
 - the PDF TOC contains correct page numbers
 - all tests and cross-platform checks remain green
+- users can point the CLI at a Markdown directory and inspect it locally without configuring the repository demo
 
 ## Later ideas
 
