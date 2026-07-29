@@ -40,6 +40,7 @@
     "test": "vitest",
     "test:run": "vitest run",
     "dev": "tsx src/index.ts",
+    "serve": "tsx src/adapters/inbound/cli/cli.ts serve",
     "build": "tsc -p tsconfig.build.json",
     "prepack": "npm run build && npm run viewer:build:library",
     "viewer:dev": "npm run example:manifest && vite",
