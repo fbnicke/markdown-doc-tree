@@ -312,6 +312,7 @@ function createManualHtml(
         max-width: 100%;
         max-height: 220mm;
         margin: 6mm auto;
+        border: 0.25mm solid #cbd5e1;
         object-fit: contain;
         break-inside: avoid;
       }
@@ -337,6 +338,14 @@ function createManualHtml(
       table {
         width: 100%;
         border-collapse: collapse;
+        break-inside: auto;
+      }
+
+      thead {
+        display: table-header-group;
+      }
+
+      tr {
         break-inside: avoid;
       }
 
