@@ -266,11 +266,6 @@ function createManualHtml(
         font-size: 30pt;
       }
 
-      .mdt-cover__subtitle {
-        margin-top: 12mm;
-        color: #64748b;
-      }
-
       .mdt-section--level-1 {
         break-before: page;
       }
@@ -432,9 +427,6 @@ function createManualHtml(
       <h1 class="mdt-cover__title">
         ${escapeHtml(options.title)}
       </h1>
-      <p class="mdt-cover__subtitle">
-        Generated with Markdown Doc Tree
-      </p>
     </section>
 
     <section class="mdt-toc">

@@ -2,6 +2,8 @@
 
 ## v0.2.0 — Embeddable Viewer
 
+Released: 2026-08-15
+
 The goal of v0.2.0 is to turn the standalone viewer into a reusable framework-independent Web Component.
 
 ### Progress

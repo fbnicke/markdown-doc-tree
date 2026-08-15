@@ -6,6 +6,8 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-15
+
 ### Added
 
 * Added the framework-independent `<markdown-doc-tree>` Web Component.
@@ -55,6 +57,11 @@ The format is based on Keep a Changelog, and this project follows Semantic Versi
 * Prevented stale document responses from replacing the most recently selected document.
 * Rendered document loading failures inside the viewer instead of producing unhandled promise rejections.
 * Ensured local viewer shutdown closes persistent browser connections and removes its temporary workspace after a single interrupt.
+* Improved long-document viewer layout with an independently scrolling navigation sidebar.
+* Improved default image and table presentation in the viewer.
+* Improved PDF pagination for headings, images, and tables.
+* Repeated table headers when PDF tables span multiple pages and prevented individual rows from being split.
+* Removed the default Markdown Doc Tree attribution from generated PDF covers.
 
 ## [0.1.0]
 

@@ -1,6 +1,6 @@
 {
   "name": "markdown-doc-tree",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Build interactive documentation trees and printable PDF manuals from numbered Markdown files.",
   "license": "ISC",
   "author": {
